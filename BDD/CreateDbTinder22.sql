@@ -49,6 +49,8 @@ create table USER
    idGenr int(3) not null,                   -- FK
    nomEUser varchar(50),
    prenomUser varchar(50),
+   emailUser varchar(255),
+   passwordUser varchar(255),                -- Mot de passe crypte/hash
    photo varchar(50),
    age int(8),
    biographie varchar(150),
