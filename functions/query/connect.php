@@ -5,6 +5,11 @@ function sql_connect(){
 
     //connect BDD with PDO using SQL_HOST, SQL_USER, SQL_PWD, SQL_DB
     // Avec encodage UTF8
-    $DB = new PDO('mysql:host=' . SQL_HOST . ';charset=utf8;dbname=' . SQL_DB, SQL_USER, SQL_PWD);
+    $port = getenv('DB_PORT');
+    if ($port !== false && $port !== '' && (!ctype_digit($port) || (int)$port < 1 || (int)$port > 65535)) {
+        throw new RuntimeException('DB_PORT doit être un port MySQL valide.');
+    }
+    $dsn = 'mysql:host=' . SQL_HOST . ($port !== false && $port !== '' ? ';port=' . $port : '') . ';charset=utf8;dbname=' . SQL_DB;
+    $DB = new PDO($dsn, SQL_USER, SQL_PWD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 }
 ?>

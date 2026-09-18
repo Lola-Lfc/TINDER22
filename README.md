@@ -32,7 +32,52 @@ L’inscription, les doublons d’email, la validation des photos, la connexion,
 le renouvellement de session et la déconnexion ont été vérifiés par HTTP et en
 base. Les tests ont été exécutés sans conserver de nouveau fichier de test.
 
-## Setup
+## Installation sur chaque ordinateur (macOS ou Windows)
+
+GitHub partage les fichiers du projet. Chaque ordinateur doit disposer de son
+propre serveur PHP/MySQL, de sa base, de son fichier `.env` et de son routage
+Apache. Le fichier `.env` est volontairement exclu de Git.
+
+1. Récupérer la dernière version du dépôt et démarrer PHP/Apache et MySQL.
+2. Pour une base neuve, importer `BDD/CreateDbTinder22.sql` dans phpMyAdmin.
+   Le fichier crée `TINDER22`, les tables et les quatre choix de genre.
+   Ne pas réimporter tout le fichier sur une base qui contient déjà les tables.
+3. Si la base est déjà importée mais que le genre est vide, sélectionner cette
+   base dans phpMyAdmin et exécuter uniquement le bloc `INSERT INTO GENRE`
+   situé à la fin du SQL. Il ajoute uniquement les choix manquants.
+4. Copier `.env.example` en `.env` sur chaque ordinateur et adapter `DB_HOST`,
+   `DB_PORT`, `DB_USER`, `DB_PASSWORD` et `DB_DATABASE` aux réglages MySQL locaux.
+   Le nom de la base du SQL est exactement `TINDER22`. Pour forcer une connexion
+   TCP utilisant le port indiqué, utiliser `DB_HOST=127.0.0.1` ; `localhost`
+   peut utiliser un socket sur macOS. Si MySQL n’a pas de mot de passe,
+   renseigner `DB_PASSWORD=`. Ne pas pousser `.env` sur GitHub.
+5. Activer PDO MySQL, mbstring, fileinfo et GD dans le PHP utilisé par le serveur.
+6. Configurer le routage dans la configuration Apache existante du collaborateur,
+   dans le bloc `<Directory>` correspondant au projet, puis redémarrer Apache :
+
+   ```apache
+   FallbackResource /index.php
+   ```
+
+   Ce chemin convient quand Cooker est la racine du site (`http://localhost/`).
+   Si Cooker est accessible sur `http://localhost/TINDER22/`, utiliser
+   `FallbackResource /TINDER22/index.php`. Le chemin local du bloc Directory
+   dépend de l’ordinateur ; ne pas recopier le chemin macOS sur Windows.
+7. Ouvrir le projet par HTTP, vérifier les quatre choix de genre, puis tester
+   l’inscription et la connexion. Les photos et les comptes de l’ordinateur
+   d’un autre collaborateur ne sont pas automatiquement partagés.
+
+Si l’inscription est indisponible, vérifier dans phpMyAdmin :
+
+```sql
+SELECT idGenr, libGenr FROM GENRE;
+SHOW COLUMNS FROM USER;
+```
+
+GENRE doit contenir les choix, et USER doit contenir `emailUser` et
+`passwordUser`. Le journal d’erreurs PHP/Apache distingue une table GENRE
+vide, des colonnes manquantes et une erreur de connexion SQL. Le code
+n’ajoute pas automatiquement de colonnes ou de base lors d’une visite.
 
 
 ## Architecture

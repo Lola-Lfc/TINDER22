@@ -13,7 +13,9 @@ try {
     $genres = $DB->query('SELECT idGenr, libGenr FROM GENRE ORDER BY idGenr')->fetchAll(PDO::FETCH_ASSOC);
     $columns = $DB->query('SHOW COLUMNS FROM USER')->fetchAll(PDO::FETCH_COLUMN);
     $storageReady = in_array('emailUser', $columns, true) && in_array('passwordUser', $columns, true);
-} catch (Throwable $e) { error_log('Cooker signup: database unavailable'); }
+    if (!$genres) error_log('Cooker signup: GENRE is empty; import reference data from BDD/CreateDbTinder22.sql.');
+    if (!$storageReady) error_log('Cooker signup: USER.emailUser or USER.passwordUser is missing.');
+} catch (Throwable $e) { error_log('Cooker signup: database unavailable (code ' . $e->getCode() . ').'); }
 function field_error($field) {
     global $errors;
     if (isset($errors[$field])) echo '<span class="field-error" id="error-' . $field . '">' . cooker_escape($errors[$field]) . '</span>';

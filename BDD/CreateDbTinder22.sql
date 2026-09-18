@@ -201,3 +201,14 @@ alter table COMMENTS add constraint FK_COMMENTS2 foreign key (idUserC2)
 
 -- --------------------------------------------------------------------
 -- --------------------------------------------------------------------
+-- Données de référence nécessaires à l’inscription (aucun changement de structure).
+-- Ce bloc peut être exécuté seul sur une base déjà importée.
+INSERT INTO GENRE (libGenr)
+SELECT choices.label
+FROM (
+    SELECT 'Homme' AS label
+    UNION ALL SELECT 'Femme'
+    UNION ALL SELECT 'Non-binaire'
+    UNION ALL SELECT 'Autre'
+) AS choices
+WHERE NOT EXISTS (SELECT 1 FROM GENRE WHERE libGenr = choices.label);
