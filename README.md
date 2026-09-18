@@ -2,8 +2,12 @@
 
 ## Cooker — inscription et connexion
 
-L’accueil `index.php` affiche l’inscription aux visiteurs et les informations
-du compte aux utilisateurs connectés. Les formulaires sont dans les fichiers
+L’accueil `index.php` affiche l’inscription aux visiteurs et redirige les
+utilisateurs connectés vers `/user/ID`. Cette route affiche leur profil privé.
+Le lien de modification ouvre `/user/ID?edit=1` et réutilise
+`views/backend/users/edit.php`. `api/users/update.php` valide les informations
+et utilise uniquement l’identifiant de session pour la mise à jour. La photo
+actuelle est conservée lorsqu’aucune nouvelle photo n’est envoyée. Les formulaires sont dans les fichiers
 existants `views/backend/security/signup.php` et `login.php`. Les API existantes
 `api/security/signup.php`, `login.php` et `disconnect.php` traitent les requêtes.
 
@@ -45,3 +49,20 @@ base. Les tests ont été exécutés sans conserver de nouveau fichier de test.
 - **index.php** - Must be the homepage
 - **views** - All your pages
 -
+
+## Routes de profil et serveur local
+
+Pour respecter la contrainte de ne créer aucun fichier, le routage Apache est
+configuré dans le fichier existant `/Applications/MAMP/conf/apache/httpd.conf` :
+`FallbackResource /index.php` dans le bloc Directory du projet. MAMP a été
+redémarré pour prendre en compte cette configuration. Sur un autre serveur,
+il faut reporter cette directive et adapter son chemin si le projet est dans
+un sous-dossier. Aucun fichier `.htaccess` n’est ajouté.
+
+Le schéma actuel utilise utf8mb3 : les caractères Unicode sur quatre octets,
+notamment certains emojis, sont refusés avec une erreur de validation. La
+structure et l’encodage de la base restent inchangés.
+
+Le profil, les modifications et les photos ont été testés par HTTP sur MAMP,
+y compris les erreurs de validation, le refus d’un autre identifiant, la
+conservation de session après modification et le refus après déconnexion.

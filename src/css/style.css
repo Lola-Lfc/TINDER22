@@ -61,3 +61,8 @@ footer{text-align:center;padding:0 20px 24px;color:var(--muted);font-size:12px}
 .header-inner button{cursor:pointer}
 @media(max-width:480px){.auth-nav{gap:12px}.auth-nav a{font-size:12px}.login-main{padding-top:28px}.header-inner{gap:12px}}
 @media(max-width:350px){.auth-nav{gap:8px}.header-cta{padding:10px}.logo{width:88px}.header-inner{padding-inline:12px}}
+.profile-card{max-width:520px}
+.profile-card .profile-photo{width:112px;height:112px}
+.success-notice{background:#edf7ef;color:#2f6b3d}
+.cancel-link{display:block;text-align:center;color:var(--muted);margin-top:16px;text-decoration:none}
+.cancel-link:hover{text-decoration:underline}

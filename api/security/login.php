@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     exit('Méthode non autorisée.');
 }
-if (!empty($_SESSION['USER_ID'])) cooker_redirect('index.php');
+if (!empty($_SESSION['USER_ID'])) cooker_redirect(cooker_profile_path($_SESSION['USER_ID']));
 $email = isset($_POST['emailUser']) && is_string($_POST['emailUser']) ? strtolower(trim($_POST['emailUser'])) : '';
 $password = $_POST['passwordUser'] ?? '';
 $error = null;
@@ -24,7 +24,7 @@ if (!isset($_POST['csrf']) || !is_string($_POST['csrf']) || !hash_equals(cooker_
         if ($user && $valid) {
             session_regenerate_id(true);
             $_SESSION = ['USER_ID' => (int)$user['idUser']];
-            cooker_redirect('index.php');
+            cooker_redirect(cooker_profile_path($_SESSION['USER_ID']));
         }
         $error = 'Email ou mot de passe incorrect.';
     } catch (Throwable $e) {

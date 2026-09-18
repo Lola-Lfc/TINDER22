@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 3) . '/config.php';
-if (!empty($_SESSION['USER_ID'])) cooker_redirect('index.php');
+if (!empty($_SESSION['USER_ID'])) cooker_redirect(cooker_profile_path($_SESSION['USER_ID']));
 $flash = $_SESSION['signup_flash'] ?? [];
 unset($_SESSION['signup_flash']);
 $values = $flash['values'] ?? cooker_signup_values([]);
@@ -30,7 +30,7 @@ function field_attributes($field) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Créer un compte — Cooker</title>
 <link rel="icon" href="<?= cooker_escape(cooker_url('favicon.ico')) ?>">
-<link rel="stylesheet" href="<?= cooker_escape(cooker_url('src/css/style.css')) ?>">
+<link rel="stylesheet" href="<?= cooker_escape(cooker_stylesheet_url()) ?>">
 </head>
 <body>
 <header class="site-header"><div class="header-inner">

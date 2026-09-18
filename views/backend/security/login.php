@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__DIR__, 3) . '/config.php';
-if (!empty($_SESSION['USER_ID'])) cooker_redirect('index.php');
+if (!empty($_SESSION['USER_ID'])) cooker_redirect(cooker_profile_path($_SESSION['USER_ID']));
 $flash = $_SESSION['login_flash'] ?? [];
 unset($_SESSION['login_flash']);
 ?>
@@ -11,7 +11,7 @@ unset($_SESSION['login_flash']);
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Connexion — Cooker</title>
 <link rel="icon" href="<?= cooker_escape(cooker_url('favicon.ico')) ?>">
-<link rel="stylesheet" href="<?= cooker_escape(cooker_url('src/css/style.css')) ?>">
+<link rel="stylesheet" href="<?= cooker_escape(cooker_stylesheet_url()) ?>">
 </head>
 <body>
 <header class="site-header"><div class="header-inner">
