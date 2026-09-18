@@ -29,3 +29,20 @@ if (!isset($isDiscovery) || !$isDiscovery) cooker_redirect('index.php?page=disco
 <?php endif; ?>
 <?php endif; ?>
 </section>
+
+<?php if (!empty($discoveryFlash['match'])): $matched = $discoveryFlash['match']; ?>
+<dialog id="match-dialog" class="match-dialog" open aria-labelledby="match-title" aria-describedby="match-description">
+<span class="match-heart" aria-hidden="true">❤️</span>
+<h2 id="match-title">C'est un match !</h2>
+<div class="match-photos"><img src="<?= cooker_escape(cooker_photo_url($currentUser['photo'])) ?>" alt="Ta photo"><img src="<?= cooker_escape(cooker_photo_url($matched['photo'])) ?>" alt="Photo de <?= cooker_escape($matched['prenomUser']) ?>"></div>
+<p id="match-description">Toi et <?= cooker_escape($matched['prenomUser']) ?> vous êtes likés. Aux fourneaux !</p>
+<form method="dialog"><button class="submit-button" type="submit">Continuer à découvrir</button></form>
+</dialog>
+<script>
+const matchDialog = document.getElementById('match-dialog');
+if (typeof matchDialog.showModal === 'function') {
+    matchDialog.removeAttribute('open');
+    matchDialog.showModal();
+}
+</script>
+<?php endif; ?>

@@ -122,3 +122,20 @@ Vérifications effectuées sans créer de fichier de test : exclusion de son
 propre compte, affichage unique, enregistrement Pass et Like, CSRF,
 paramètres invalides, répétition de soumission, état vide, arrivée d’un
 nouvel utilisateur, persistance après reconnexion et rendu mobile à 390 px.
+
+## Match réciproque
+
+Après un Like, l’API vérifie les deux lignes LIKES avec `likeL1 = 1`.
+Elle crée une seule paire dans MATCHS, avec le plus petit identifiant en
+premier, et vérifie aussi les éventuelles paires déjà stockées dans l’autre
+sens. Un verrou MySQL par paire sérialise les Likes simultanés ; la décision
+et le match sont enregistrés dans une même transaction.
+
+Un nouveau match est placé dans le message temporaire de session de la
+découverte. Après redirection, une popup « C’est un match ! » affiche les
+deux photos et le prénom du binôme. Son bouton permet de poursuivre la
+découverte. Le message est consommé une seule fois.
+
+Vérifications : Like simple, Like réciproque, Pass, absence de doublons et de
+popup répétée, apparition et fermeture du dialogue dans le navigateur,
+format mobile à 390 px. Aucun fichier ou changement de schéma ajouté.

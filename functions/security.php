@@ -115,3 +115,18 @@ function cooker_next_profile($userId) {
     $query->execute([(int)$userId, (int)$userId]);
     return $query->fetch(PDO::FETCH_ASSOC) ?: null;
 }
+
+// Called while holding the pair lock and the Like transaction.
+function cooker_create_reciprocal_match($db, $actor, $target) {
+    $likes = $db->prepare('SELECT COUNT(*) FROM LIKES WHERE likeL1 = 1 AND ((idUserL1 = ? AND idUserL2 = ?) OR (idUserL1 = ? AND idUserL2 = ?))');
+    $likes->execute([$actor, $target, $target, $actor]);
+    if ((int)$likes->fetchColumn() !== 2) return null;
+    $existing = $db->prepare('SELECT 1 FROM MATCHS WHERE (idUserM1 = ? AND idUserM2 = ?) OR (idUserM1 = ? AND idUserM2 = ?) LIMIT 1');
+    $existing->execute([$actor, $target, $target, $actor]);
+    if ($existing->fetchColumn()) return null;
+    $insert = $db->prepare('INSERT INTO MATCHS (idUserM1, idUserM2) VALUES (?, ?)');
+    $insert->execute([min($actor, $target), max($actor, $target)]);
+    $profile = $db->prepare('SELECT idUser, prenomUser, photo FROM USER WHERE idUser = ?');
+    $profile->execute([$target]);
+    return $profile->fetch(PDO::FETCH_ASSOC) ?: null;
+}
