@@ -1,10 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-require_once '../../functions/ctrlSaisies.php';
-
-$libStat = ($_POST['libStat']);
-
-sql_insert('STATUT', 'libStat', "'$libStat'");
-
-
-header('Location: ../../views/backend/statuts/list.php');
+require_once dirname(__DIR__, 2) . '/config.php';
+cooker_require_admin();
+http_response_code(404);
+exit('La table des statuts n’existe pas dans la base Cooker.');

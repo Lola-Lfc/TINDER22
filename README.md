@@ -178,3 +178,32 @@ une ancienne soumission répétée ne recrée pas un match supprimé.
 Tests effectués : consultation d’un match, confidentialité des informations,
 édition refusée, CSRF, suppression des deux sens, conservation des autres
 paires et des Likes, répétitions de soumission, suppression du bouton Unmatch après rupture, et accès refusé après déconnexion. Aucun fichier ni modification de structure ajouté.
+
+
+## Administration
+
+Le lien « Admin » ouvre `index.php?page=admin` uniquement pour le compte
+connecté dont l’identifiant est **4**. Le contrôle est également exécuté sur
+chaque API d’administration et sur les anciennes vues, même en accès direct.
+Les formulaires utilisent POST avec un jeton CSRF spécifique.
+
+Le panneau permet de consulter, créer, modifier et supprimer les utilisateurs,
+les likes/pass, ainsi que consulter, créer et
+supprimer les matchs. Les deux utilisateurs d’une relation restent fixes :
+pour changer une paire, la supprimer puis en créer une autre. Les likes
+réciproques positifs créent un match. Les mots de passe ne sont jamais affichés ;
+un mot de passe laissé vide lors d’une modification reste inchangé.
+
+Le compte #4 ne peut pas être supprimé. La suppression d’un utilisateur
+supprime également ses relations via les contraintes existantes de la base.
+Les panneaux Genres et Commentaires ont été retirés, avec refus d’accès direct
+aux vues et aux API correspondantes. Les genres restent disponibles pour
+l’inscription et les profils. La liste est paginée
+par blocs de 100 éléments. Les API `statutsCC` sont désactivées : la base
+Cooker ne contient pas de table `STATUT`. Aucune table n’est ajoutée.
+
+Les IDs utilisateurs ne représentent pas un compteur de comptes. Le réglage
+MySQL local `auto_increment_increment` vaut 1. Les comptes temporaires créés
+puis supprimés lors des vérifications précédentes ont consommé des IDs,
+ce qui explique une partie des trous entre 4, 18 et 27. Les insertions échouées
+ou annulées peuvent aussi laisser des trous. Les IDs existants sont conservés.

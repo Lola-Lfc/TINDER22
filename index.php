@@ -5,13 +5,15 @@ $isProfile = array_key_exists('user', $_GET);
 $userId = $isProfile && is_string($_GET['user']) ? $_GET['user'] : '';
 $isDiscovery = isset($_GET['page']) && $_GET['page'] === 'discover';
 $isMatches = isset($_GET['page']) && $_GET['page'] === 'matches';
+$isAdmin = isset($_GET['page']) && $_GET['page'] === 'admin';
 if (($isProfile && (!preg_match('/^[1-9][0-9]*$/', $userId) || filter_var($userId, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]) === false))
-    || (isset($_GET['page']) && !$isDiscovery && !$isMatches) || ($isProfile && ($isDiscovery || $isMatches))) {
+    || (isset($_GET['page']) && !$isDiscovery && !$isMatches && !$isAdmin) || ($isProfile && ($isDiscovery || $isMatches || $isAdmin))) {
     http_response_code(404); exit('Page introuvable.');
 }
 if (empty($_SESSION['USER_ID'])) {
-    if ($isProfile || $isDiscovery || $isMatches) cooker_redirect('views/backend/security/login.php');
+    if ($isProfile || $isDiscovery || $isMatches || $isAdmin) cooker_redirect('views/backend/security/login.php');
 }
+if ($isAdmin) cooker_require_admin();
 $currentUser = null;
 $unavailable = false;
 $user = null;
@@ -56,7 +58,7 @@ try {
 <html lang="fr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= $isHome ? 'Accueil' : ($isDiscovery ? 'Découvrir' : ($isMatches ? 'Mes matchs' : ($isOwner ? 'Mon profil' : 'Profil utilisateur'))) ?> — Cooker</title>
+<title><?= $isAdmin ? 'Administration' : ($isHome ? 'Accueil' : ($isDiscovery ? 'Découvrir' : ($isMatches ? 'Mes matchs' : ($isOwner ? 'Mon profil' : 'Profil utilisateur')))) ?> — Cooker</title>
 <link rel="icon" href="<?= cooker_escape(cooker_url('favicon.ico')) ?>">
 <link rel="stylesheet" href="<?= cooker_escape(cooker_stylesheet_url()) ?>">
 </head>
@@ -64,12 +66,14 @@ try {
 <header class="site-header member-header"><div class="header-inner">
 <a href="<?= cooker_escape(cooker_url('index.php')) ?>" aria-label="Cooker, accueil"><img class="logo" src="<?= cooker_escape(cooker_asset('logo')) ?>" alt="Cooker"></a>
 <?php if (!empty($_SESSION['USER_ID'])): ?>
-<nav class="auth-nav" aria-label="Compte"><a href="<?= cooker_escape(cooker_url('index.php?page=discover')) ?>" <?= $isDiscovery ? 'aria-current="page" class="active"' : '' ?>>Découvrir</a><a href="<?= cooker_escape(cooker_url('index.php?page=matches')) ?>" <?= $isMatches ? 'aria-current="page" class="active"' : '' ?>>Mes matchs</a><a href="<?= cooker_escape(cooker_url(cooker_profile_path($_SESSION['USER_ID']))) ?>" <?= $isProfile && $isOwner ? 'aria-current="page"' : '' ?>>Mon profil</a><form action="<?= cooker_escape(cooker_url('api/security/disconnect.php')) ?>" method="post"><input type="hidden" name="csrf" value="<?= cooker_escape(cooker_csrf('logout')) ?>"><button class="header-cta" type="submit">Se déconnecter</button></form></nav>
+<nav class="auth-nav" aria-label="Compte"><a href="<?= cooker_escape(cooker_url('index.php?page=discover')) ?>" <?= $isDiscovery ? 'aria-current="page" class="active"' : '' ?>>Découvrir</a><a href="<?= cooker_escape(cooker_url('index.php?page=matches')) ?>" <?= $isMatches ? 'aria-current="page" class="active"' : '' ?>>Mes matchs</a><a href="<?= cooker_escape(cooker_url(cooker_profile_path($_SESSION['USER_ID']))) ?>" <?= $isProfile && $isOwner ? 'aria-current="page"' : '' ?>>Mon profil</a><?php if ((int)$_SESSION['USER_ID'] === 4): ?><a href="<?= cooker_escape(cooker_url('index.php?page=admin')) ?>" <?= $isAdmin ? 'aria-current="page" class="active"' : '' ?>>Admin</a><?php endif; ?><form action="<?= cooker_escape(cooker_url('api/security/disconnect.php')) ?>" method="post"><input type="hidden" name="csrf" value="<?= cooker_escape(cooker_csrf('logout')) ?>"><button class="header-cta" type="submit">Se déconnecter</button></form></nav>
 <?php else: ?>
 <nav class="auth-nav" aria-label="Compte"><a href="<?= cooker_escape(cooker_url('views/backend/security/login.php')) ?>">Connexion</a><a class="header-cta" href="<?= cooker_escape(cooker_url('views/backend/security/signup.php')) ?>">Créer un compte</a></nav>
 <?php endif; ?>
 </div></header>
-<main<?php if ($isHome): ?> class="home-main"<?php endif; ?>><?php if ($isHome): ?>
+<main<?php if ($isHome): ?> class="home-main"<?php endif; ?>><?php if ($isAdmin): ?>
+<?php require __DIR__ . '/views/backend/dashboard.php'; ?>
+<?php elseif ($isHome): ?>
 <section class="home-hero" aria-labelledby="home-title">
 <div class="home-intro">
 <p class="home-eyebrow">Une rencontre, un repas, un bon moment.</p>

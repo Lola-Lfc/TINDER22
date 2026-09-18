@@ -1,5 +1,6 @@
 <?php
 require_once dirname(__DIR__, 2) . '/config.php';
+if (isset($_POST['admin'])) cooker_admin_request('likes', 'create');
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST'); http_response_code(405); exit('Méthode non autorisée.');
 }
