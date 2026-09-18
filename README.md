@@ -3,7 +3,7 @@
 ## Cooker — inscription et connexion
 
 L’accueil `index.php` affiche l’inscription aux visiteurs et redirige les
-utilisateurs connectés vers `/user/ID`. Cette route affiche leur profil privé.
+utilisateurs connectés vers `/discover`. Le lien « Mon profil » ouvre `/user/ID`. Cette route affiche leur profil privé.
 Le lien de modification ouvre `/user/ID?edit=1` et réutilise
 `views/backend/users/edit.php`. `api/users/update.php` valide les informations
 et utilise uniquement l’identifiant de session pour la mise à jour. La photo
@@ -66,3 +66,22 @@ structure et l’encodage de la base restent inchangés.
 Le profil, les modifications et les photos ont été testés par HTTP sur MAMP,
 y compris les erreurs de validation, le refus d’un autre identifiant, la
 conservation de session après modification et le refus après déconnexion.
+
+## Découverte des profils
+
+`/discover` réutilise `index.php` et `views/backend/likes/list.php`. Une requête
+récupère un seul autre utilisateur et exclut le compte connecté ainsi que
+tous les profils déjà traités par ce compte. Seuls le prénom, l’âge, le genre,
+la photo et la biographie sont présentés.
+
+Les boutons Pass et Like envoient un POST avec CSRF à `api/likes/create.php`.
+La table existante LIKES conserve `likeL1 = 0` pour Pass et `likeL1 = 1` pour
+Like. L’auteur provient exclusivement de la session. La clé primaire de
+la table rend les soumissions répétées sans effet sur le choix initial.
+Après le POST, une redirection affiche le profil suivant. Un état vide est
+affiché lorsque tous les autres profils ont été traités.
+
+Vérifications effectuées sans créer de fichier de test : exclusion de son
+propre compte, affichage unique, enregistrement Pass et Like, CSRF,
+paramètres invalides, répétition de soumission, état vide, arrivée d’un
+nouvel utilisateur, persistance après reconnexion et rendu mobile à 390 px.

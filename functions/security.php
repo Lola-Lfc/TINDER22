@@ -15,7 +15,7 @@ function check_access($level) {
 
 // Fonctions communes aux formulaires Cooker.
 function cooker_url($path = '') {
-    $base = preg_replace('~/(?:views/.*|api/.*|index\.php(?:/.*)?|user/.*)$~', '', $_SERVER['SCRIPT_NAME']);
+    $base = preg_replace('~/(?:views/.*|api/.*|index\.php(?:/.*)?|user/.*|discover/?)$~', '', $_SERVER['SCRIPT_NAME']);
     return $base . '/' . ltrim($path, '/');
 }
 // Versionner le CSS pour éviter de réutiliser une ancienne feuille en cache.
@@ -108,4 +108,10 @@ function cooker_store_photo($image) {
 }
 function cooker_photo_url($path) {
     return is_string($path) && preg_match('~^src/(?:uploads|images)/[a-f0-9]{32}\.jpg$~', $path) ? cooker_url($path) : cooker_asset('hat');
+}
+
+function cooker_next_profile($userId) {
+    $query = cooker_database()->prepare('SELECT u.idUser, u.prenomUser, u.age, u.photo, u.biographie, g.libGenr FROM USER u JOIN GENRE g ON g.idGenr = u.idGenr WHERE u.idUser <> ? AND NOT EXISTS (SELECT 1 FROM LIKES l WHERE l.idUserL1 = ? AND l.idUserL2 = u.idUser) ORDER BY u.idUser LIMIT 1');
+    $query->execute([(int)$userId, (int)$userId]);
+    return $query->fetch(PDO::FETCH_ASSOC) ?: null;
 }
