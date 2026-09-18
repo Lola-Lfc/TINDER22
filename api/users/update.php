@@ -40,4 +40,4 @@ try {
     if ($image) imagedestroy($image);
 }
 $_SESSION['profile_flash'] = $errors ? ['errors' => $errors, 'values' => $values] : ['success' => true];
-cooker_redirect(cooker_profile_path($_SESSION['USER_ID']) . ($errors ? '?edit=1' : ''));
+cooker_redirect(cooker_profile_path($_SESSION['USER_ID']) . ($errors ? '&edit=1' : ''));

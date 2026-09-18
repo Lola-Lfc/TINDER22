@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 3) . '/config.php';
 if (empty($_SESSION['USER_ID'])) cooker_redirect('views/backend/security/login.php');
-if (!isset($isDiscovery) || !$isDiscovery) cooker_redirect('discover');
+if (!isset($isDiscovery) || !$isDiscovery) cooker_redirect('index.php?page=discover');
 ?>
 <section class="discovery" aria-label="Découvrir des personnes avec qui cuisiner">
 <h1 class="visually-hidden">Découvrir les profils</h1>

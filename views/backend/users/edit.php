@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__DIR__, 3) . '/config.php';
 if (empty($_SESSION['USER_ID'])) cooker_redirect('views/backend/security/login.php');
-if (!isset($user, $flash)) cooker_redirect(cooker_profile_path($_SESSION['USER_ID']) . '?edit=1');
+if (!isset($user, $flash)) cooker_redirect(cooker_profile_path($_SESSION['USER_ID']) . '&edit=1');
 $values = $flash['values'] ?? $user;
 $errors = $flash['errors'] ?? [];
 $genres = cooker_database()->query('SELECT idGenr, libGenr FROM GENRE ORDER BY idGenr')->fetchAll(PDO::FETCH_ASSOC);

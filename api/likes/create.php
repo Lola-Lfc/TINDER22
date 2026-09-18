@@ -23,4 +23,4 @@ try {
     error_log('Cooker discovery decision failed: ' . get_class($e));
     $_SESSION['discovery_flash'] = ['error' => 'Impossible d’enregistrer ton choix pour le moment. Réessaie.'];
 }
-cooker_redirect('discover');
+cooker_redirect('index.php?page=discover');

@@ -3,8 +3,8 @@
 ## Cooker — inscription et connexion
 
 L’accueil `index.php` affiche l’inscription aux visiteurs et redirige les
-utilisateurs connectés vers `/discover`. Le lien « Mon profil » ouvre `/user/ID`. Cette route affiche leur profil privé.
-Le lien de modification ouvre `/user/ID?edit=1` et réutilise
+utilisateurs connectés vers `index.php?page=discover`. Le lien « Mon profil » ouvre `index.php?user=ID`. Cette route affiche leur profil privé.
+Le lien de modification ouvre `index.php?user=ID&edit=1` et réutilise
 `views/backend/users/edit.php`. `api/users/update.php` valide les informations
 et utilise uniquement l’identifiant de session pour la mise à jour. La photo
 actuelle est conservée lorsqu’aucune nouvelle photo n’est envoyée. Les formulaires sont dans les fichiers
@@ -52,17 +52,9 @@ Apache. Le fichier `.env` est volontairement exclu de Git.
    peut utiliser un socket sur macOS. Si MySQL n’a pas de mot de passe,
    renseigner `DB_PASSWORD=`. Ne pas pousser `.env` sur GitHub.
 5. Activer PDO MySQL, mbstring, fileinfo et GD dans le PHP utilisé par le serveur.
-6. Configurer le routage dans la configuration Apache existante du collaborateur,
-   dans le bloc `<Directory>` correspondant au projet, puis redémarrer Apache :
-
-   ```apache
-   FallbackResource /index.php
-   ```
-
-   Ce chemin convient quand Cooker est la racine du site (`http://localhost/`).
-   Si Cooker est accessible sur `http://localhost/TINDER22/`, utiliser
-   `FallbackResource /TINDER22/index.php`. Le chemin local du bloc Directory
-   dépend de l’ordinateur ; ne pas recopier le chemin macOS sur Windows.
+6. Les pages utilisent des paramètres GET (`index.php?user=ID` et
+   `index.php?page=discover`). Aucune configuration de routage Apache n’est
+   nécessaire, que le projet soit à la racine ou dans un sous-dossier.
 7. Ouvrir le projet par HTTP, vérifier les quatre choix de genre, puis tester
    l’inscription et la connexion. Les photos et les comptes de l’ordinateur
    d’un autre collaborateur ne sont pas automatiquement partagés.
@@ -95,14 +87,14 @@ n’ajoute pas automatiquement de colonnes ou de base lors d’une visite.
 - **views** - All your pages
 -
 
-## Routes de profil et serveur local
+## Navigation portable
 
-Pour respecter la contrainte de ne créer aucun fichier, le routage Apache est
-configuré dans le fichier existant `/Applications/MAMP/conf/apache/httpd.conf` :
-`FallbackResource /index.php` dans le bloc Directory du projet. MAMP a été
-redémarré pour prendre en compte cette configuration. Sur un autre serveur,
-il faut reporter cette directive et adapter son chemin si le projet est dans
-un sous-dossier. Aucun fichier `.htaccess` n’est ajouté.
+Le profil utilise `index.php?user=ID`, sa modification
+`index.php?user=ID&edit=1`, et la découverte `index.php?page=discover`.
+Les liens sont générés avec le préfixe du projet pour fonctionner à la racine
+et dans un sous-dossier, sur macOS et Windows. Les formulaires de modification,
+d’inscription, de connexion, de déconnexion, de Pass et de Like utilisent POST.
+Aucun fichier `.htaccess` ou réglage Apache supplémentaire n’est nécessaire.
 
 Le schéma actuel utilise utf8mb3 : les caractères Unicode sur quatre octets,
 notamment certains emojis, sont refusés avec une erreur de validation. La
@@ -114,7 +106,7 @@ conservation de session après modification et le refus après déconnexion.
 
 ## Découverte des profils
 
-`/discover` réutilise `index.php` et `views/backend/likes/list.php`. Une requête
+`index.php?page=discover` réutilise `index.php` et `views/backend/likes/list.php`. Une requête
 récupère un seul autre utilisateur et exclut le compte connecté ainsi que
 tous les profils déjà traités par ce compte. Seuls le prénom, l’âge, le genre,
 la photo et la biographie sont présentés.

@@ -15,7 +15,7 @@ function check_access($level) {
 
 // Fonctions communes aux formulaires Cooker.
 function cooker_url($path = '') {
-    $base = preg_replace('~/(?:views/.*|api/.*|index\.php(?:/.*)?|user/.*|discover/?)$~', '', $_SERVER['SCRIPT_NAME']);
+    $base = preg_replace('~/(?:views/.*|api/.*|index\.php(?:/.*)?)$~', '', $_SERVER['SCRIPT_NAME']);
     return $base . '/' . ltrim($path, '/');
 }
 // Versionner le CSS pour éviter de réutiliser une ancienne feuille en cache.
@@ -78,7 +78,7 @@ function cooker_signup_errors($values, $password) {
 }
 
 function cooker_profile_path($id) {
-    return 'user/' . (int)$id;
+    return 'index.php?user=' . (int)$id;
 }
 function cooker_profile_errors($values) {
     $errors = cooker_signup_errors(array_merge($values, ['emailUser' => 'profile@example.com']), 'placeholder');
