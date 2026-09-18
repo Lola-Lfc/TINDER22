@@ -2,8 +2,9 @@
 
 ## Cooker — inscription et connexion
 
-L’accueil `index.php` affiche l’inscription aux visiteurs et redirige les
-utilisateurs connectés vers `index.php?page=discover`. Le lien « Mon profil » ouvre `index.php?user=ID`. Cette route affiche leur profil privé.
+L’accueil `index.php` présente Cooker et les trois étapes du concept. Les visiteurs
+peuvent accéder à l’inscription et à la connexion ; les utilisateurs connectés
+peuvent ouvrir la découverte et leurs matchs. Le lien « Mon profil » ouvre `index.php?user=ID`. Cette route affiche leur profil privé.
 Le lien de modification ouvre `index.php?user=ID&edit=1` et réutilise
 `views/backend/users/edit.php`. `api/users/update.php` valide les informations
 et utilise uniquement l’identifiant de session pour la mise à jour. La photo

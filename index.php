@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
+$isHome = !isset($_GET['page']) && !array_key_exists('user', $_GET);
 $isProfile = array_key_exists('user', $_GET);
 $userId = $isProfile && is_string($_GET['user']) ? $_GET['user'] : '';
 $isDiscovery = isset($_GET['page']) && $_GET['page'] === 'discover';
@@ -10,8 +11,8 @@ if (($isProfile && (!preg_match('/^[1-9][0-9]*$/', $userId) || filter_var($userI
 }
 if (empty($_SESSION['USER_ID'])) {
     if ($isProfile || $isDiscovery || $isMatches) cooker_redirect('views/backend/security/login.php');
-    require __DIR__ . '/views/backend/security/signup.php'; return;
 }
+$currentUser = null;
 $unavailable = false;
 $user = null;
 $isOwner = false;
@@ -22,27 +23,28 @@ $discoveryFlash = [];
 $matches = [];
 $matchesFlash = [];
 try {
-    $currentUser = cooker_current_user();
-    if (!$currentUser) cooker_redirect('views/backend/security/login.php');
-    if (!$isProfile && !$isDiscovery && !$isMatches) cooker_redirect('index.php?page=discover');
-    if ($isDiscovery) {
-        $candidate = cooker_next_profile($currentUser['idUser']);
-        $discoveryFlash = $_SESSION['discovery_flash'] ?? [];
-        unset($_SESSION['discovery_flash']);
-    } elseif ($isMatches) {
-        $matches = cooker_user_matches($currentUser['idUser']);
-        $matchesFlash = $_SESSION['matches_flash'] ?? [];
-        unset($_SESSION['matches_flash']);
-    } else {
-        $isOwner = $userId === (string)$currentUser['idUser'];
-        $user = $isOwner ? $currentUser : cooker_public_profile($currentUser['idUser'], $userId);
-        if (!$user) { http_response_code(404); exit('Profil introuvable.'); }
-        $editing = isset($_GET['edit']) && $_GET['edit'] === '1';
-        if ($editing && !$isOwner) { http_response_code(403); exit('Tu peux uniquement modifier ton propre profil.'); }
-        if ($isOwner) {
-            $flash = $_SESSION['profile_flash'] ?? [];
-            unset($_SESSION['profile_flash']);
-            if (!empty($flash['errors'])) $editing = true;
+    if (!empty($_SESSION['USER_ID'])) {
+        $currentUser = cooker_current_user();
+        if (!$currentUser) cooker_redirect('views/backend/security/login.php');
+        if ($isDiscovery) {
+            $candidate = cooker_next_profile($currentUser['idUser']);
+            $discoveryFlash = $_SESSION['discovery_flash'] ?? [];
+            unset($_SESSION['discovery_flash']);
+        } elseif ($isMatches) {
+            $matches = cooker_user_matches($currentUser['idUser']);
+            $matchesFlash = $_SESSION['matches_flash'] ?? [];
+            unset($_SESSION['matches_flash']);
+        } elseif ($isProfile) {
+            $isOwner = $userId === (string)$currentUser['idUser'];
+            $user = $isOwner ? $currentUser : cooker_public_profile($currentUser['idUser'], $userId);
+            if (!$user) { http_response_code(404); exit('Profil introuvable.'); }
+            $editing = isset($_GET['edit']) && $_GET['edit'] === '1';
+            if ($editing && !$isOwner) { http_response_code(403); exit('Tu peux uniquement modifier ton propre profil.'); }
+            if ($isOwner) {
+                $flash = $_SESSION['profile_flash'] ?? [];
+                unset($_SESSION['profile_flash']);
+                if (!empty($flash['errors'])) $editing = true;
+            }
         }
     }
 } catch (Throwable $e) {
@@ -54,16 +56,46 @@ try {
 <html lang="fr">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= $isDiscovery ? 'Découvrir' : ($isMatches ? 'Mes matchs' : ($isOwner ? 'Mon profil' : 'Profil utilisateur')) ?> — Cooker</title>
+<title><?= $isHome ? 'Accueil' : ($isDiscovery ? 'Découvrir' : ($isMatches ? 'Mes matchs' : ($isOwner ? 'Mon profil' : 'Profil utilisateur'))) ?> — Cooker</title>
 <link rel="icon" href="<?= cooker_escape(cooker_url('favicon.ico')) ?>">
 <link rel="stylesheet" href="<?= cooker_escape(cooker_stylesheet_url()) ?>">
 </head>
 <body>
 <header class="site-header member-header"><div class="header-inner">
 <a href="<?= cooker_escape(cooker_url('index.php')) ?>" aria-label="Cooker, accueil"><img class="logo" src="<?= cooker_escape(cooker_asset('logo')) ?>" alt="Cooker"></a>
+<?php if (!empty($_SESSION['USER_ID'])): ?>
 <nav class="auth-nav" aria-label="Compte"><a href="<?= cooker_escape(cooker_url('index.php?page=discover')) ?>" <?= $isDiscovery ? 'aria-current="page" class="active"' : '' ?>>Découvrir</a><a href="<?= cooker_escape(cooker_url('index.php?page=matches')) ?>" <?= $isMatches ? 'aria-current="page" class="active"' : '' ?>>Mes matchs</a><a href="<?= cooker_escape(cooker_url(cooker_profile_path($_SESSION['USER_ID']))) ?>" <?= $isProfile && $isOwner ? 'aria-current="page"' : '' ?>>Mon profil</a><form action="<?= cooker_escape(cooker_url('api/security/disconnect.php')) ?>" method="post"><input type="hidden" name="csrf" value="<?= cooker_escape(cooker_csrf('logout')) ?>"><button class="header-cta" type="submit">Se déconnecter</button></form></nav>
+<?php else: ?>
+<nav class="auth-nav" aria-label="Compte"><a href="<?= cooker_escape(cooker_url('views/backend/security/login.php')) ?>">Connexion</a><a class="header-cta" href="<?= cooker_escape(cooker_url('views/backend/security/signup.php')) ?>">Créer un compte</a></nav>
+<?php endif; ?>
 </div></header>
-<main><?php if ($isDiscovery): ?>
+<main<?php if ($isHome): ?> class="home-main"<?php endif; ?>><?php if ($isHome): ?>
+<section class="home-hero" aria-labelledby="home-title">
+<div class="home-intro">
+<p class="home-eyebrow">Une rencontre, un repas, un bon moment.</p>
+<h1 id="home-title">À deux, la cuisine a meilleur goût.</h1>
+<p class="home-description">Trouve quelqu’un avec qui cuisiner, partager les frais du repas et passer un bon moment autour de la table.</p>
+<div class="home-actions">
+<?php if (!empty($_SESSION['USER_ID'])): ?>
+<a class="header-cta" href="<?= cooker_escape(cooker_url('index.php?page=discover')) ?>">Découvrir les profils</a>
+<a class="home-secondary" href="<?= cooker_escape(cooker_url('index.php?page=matches')) ?>">Voir mes matchs</a>
+<?php else: ?>
+<a class="header-cta" href="<?= cooker_escape(cooker_url('views/backend/security/signup.php')) ?>">Commencer l’aventure</a>
+<a class="home-secondary" href="<?= cooker_escape(cooker_url('views/backend/security/login.php')) ?>">J’ai déjà un compte</a>
+<?php endif; ?>
+</div>
+</div>
+<div class="home-illustration" aria-hidden="true"><div class="home-plate"><img src="<?= cooker_escape(cooker_asset('hat')) ?>" alt=""><span>Cuisinez ensemble.</span></div><span class="home-heart">♥</span><span class="home-note">Le plaisir se partage</span></div>
+</section>
+<section class="home-steps" aria-labelledby="home-steps-title">
+<h2 id="home-steps-title">Comment ça marche ?</h2>
+<div class="home-steps-grid">
+<article><span class="home-step-number">1</span><h3>Présente-toi</h3><p>Crée ton profil, ajoute ta photo et quelques mots sur toi.</p></article>
+<article><span class="home-step-number">2</span><h3>Trouve ton binôme</h3><p>Découvre les profils un par un et like les personnes que tu aimerais rencontrer.</p></article>
+<article><span class="home-step-number">3</span><h3>C’est un match !</h3><p>Si le like est réciproque, retrouve ton binôme dans tes matchs. À vous de cuisiner ensemble !</p></article>
+</div>
+</section>
+<?php elseif ($isDiscovery): ?>
 <?php require __DIR__ . '/views/backend/likes/list.php'; ?>
 <?php elseif ($isMatches): ?>
 <?php require __DIR__ . '/views/backend/matchs/list.php'; ?>
