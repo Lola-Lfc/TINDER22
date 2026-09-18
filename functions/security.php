@@ -145,13 +145,24 @@ function cooker_public_profile($actor, $target) {
 
 // Administration : identity comes exclusively from the server-side session.
 function cooker_require_admin() {
-    if (empty($_SESSION['USER_ID'])) cooker_redirect('views/backend/security/login.php');
-    if ((int)$_SESSION['USER_ID'] !== 4) { http_response_code(403); exit('Accès réservé à l’administration.'); }
-    try {
-        if (!cooker_current_user()) cooker_redirect('views/backend/security/login.php');
-    } catch (Throwable $e) {
-        error_log('Cooker admin authentication failed: ' . get_class($e));
-        http_response_code(503); exit('Administration momentanément indisponible.');
+    if (empty($_SESSION['USER_ID'])) {
+        cooker_redirect('views/backend/security/login.php');
+    } else {
+        if ((int) $_SESSION['USER_ID'] === 4) {
+            // Le compte autorisé doit toujours exister dans la base.
+            try {
+                if (!cooker_current_user()) {
+                    cooker_redirect('views/backend/security/login.php');
+                }
+            } catch (Throwable $e) {
+                error_log('Cooker admin authentication failed: ' . get_class($e));
+                http_response_code(503);
+                exit('Administration momentanément indisponible.');
+            }
+        } else {
+            http_response_code(403);
+            exit('Accès réservé à l’administration.');
+        }
     }
 }
 function cooker_admin_sections() {
