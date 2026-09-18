@@ -139,3 +139,41 @@ découverte. Le message est consommé une seule fois.
 Vérifications : Like simple, Like réciproque, Pass, absence de doublons et de
 popup répétée, apparition et fermeture du dialogue dans le navigateur,
 format mobile à 390 px. Aucun fichier ou changement de schéma ajouté.
+
+## Mes matchs
+
+`index.php?page=matches` affiche les matchs de la session connectée via le
+fichier existant `views/backend/matchs/list.php`. La requête récupère les
+utilisateurs liés au compte dans les deux sens de MATCHS et affiche une
+seule carte par personne, avec photo, prénom, âge, genre et biographie.
+Les emails et mots de passe ne sont pas récupérés par cette requête.
+
+Le menu et la popup de nouveau match proposent un lien vers cette page.
+Un état vide invite à découvrir des profils lorsqu’aucun match n’existe.
+La grille affiche trois colonnes sur ordinateur, deux sur tablette et une
+sur mobile. L’accès nécessite une session valide.
+
+Tests : état vide, deux sens des paires, absence de doublons, exclusion des
+matchs d’autres comptes, échappement du texte, accès après déconnexion,
+racine et sous-dossier, contrôle visuel sur ordinateur et mobile à 390 px.
+
+## Profil d’un match et Unmatch
+
+Les cartes de Mes matchs proposent « Voir le profil » vers `index.php?user=ID`.
+Tout utilisateur connecté peut consulter les autres profils, même sans match.
+Le bouton « Voir le profil » est aussi présent sur les cartes de découverte. Il affiche uniquement le prénom, l’âge, le genre,
+la photo et la biographie. Son édition est refusée. Le bouton Unmatch apparaît uniquement si un match existe.
+
+Le bouton Unmatch envoie un POST avec CSRF à l’API existante
+`api/matchs/delete.php`. Le compte auteur vient uniquement de la session.
+La suppression concerne les deux orientations possibles de la paire dans
+MATCHS et utilise le même verrou MySQL que la création de match. Elle ne
+modifie pas LIKES. Après redirection vers Mes matchs, la carte disparaît et
+un message confirme la suppression.
+
+La création de match après Like est limitée à une nouvelle décision insérée :
+une ancienne soumission répétée ne recrée pas un match supprimé.
+
+Tests effectués : consultation d’un match, confidentialité des informations,
+édition refusée, CSRF, suppression des deux sens, conservation des autres
+paires et des Likes, répétitions de soumission, suppression du bouton Unmatch après rupture, et accès refusé après déconnexion. Aucun fichier ni modification de structure ajouté.

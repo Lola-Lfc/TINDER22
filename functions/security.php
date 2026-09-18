@@ -130,3 +130,15 @@ function cooker_create_reciprocal_match($db, $actor, $target) {
     $profile->execute([$target]);
     return $profile->fetch(PDO::FETCH_ASSOC) ?: null;
 }
+
+function cooker_user_matches($userId) {
+    $query = cooker_database()->prepare('SELECT u.idUser, u.prenomUser, u.age, u.photo, u.biographie, g.libGenr FROM USER u JOIN GENRE g ON g.idGenr = u.idGenr WHERE u.idUser <> ? AND EXISTS (SELECT 1 FROM MATCHS m WHERE (m.idUserM1 = ? AND m.idUserM2 = u.idUser) OR (m.idUserM2 = ? AND m.idUserM1 = u.idUser)) ORDER BY u.prenomUser, u.idUser');
+    $query->execute([(int)$userId, (int)$userId, (int)$userId]);
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function cooker_public_profile($actor, $target) {
+    $query = cooker_database()->prepare('SELECT u.idUser, u.prenomUser, u.age, u.photo, u.biographie, g.libGenr, EXISTS (SELECT 1 FROM MATCHS m WHERE (m.idUserM1 = ? AND m.idUserM2 = u.idUser) OR (m.idUserM2 = ? AND m.idUserM1 = u.idUser)) AS isMatched FROM USER u JOIN GENRE g ON g.idGenr = u.idGenr WHERE u.idUser = ?');
+    $query->execute([(int)$actor, (int)$actor, (int)$target]);
+    return $query->fetch(PDO::FETCH_ASSOC) ?: null;
+}

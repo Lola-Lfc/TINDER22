@@ -17,6 +17,7 @@ if (!isset($isDiscovery) || !$isDiscovery) cooker_redirect('index.php?page=disco
 <div class="discovery-identity"><h2 id="candidate-title"><?= cooker_escape($candidate['prenomUser']) ?>, <?= (int)$candidate['age'] ?> ans</h2><p><?= cooker_escape($candidate['libGenr']) ?></p></div>
 </div>
 <div class="discovery-body"><p class="discovery-bio"><?= cooker_escape($candidate['biographie'] ?: 'Cette personne n’a pas encore ajouté de biographie.') ?></p>
+<a class="cancel-link" href="<?= cooker_escape(cooker_url(cooker_profile_path($candidate['idUser']))) ?>">Voir le profil</a>
 <form class="discovery-actions" action="<?= cooker_escape(cooker_url('api/likes/create.php')) ?>" method="post">
 <input type="hidden" name="csrf" value="<?= cooker_escape(cooker_csrf('discover')) ?>">
 <input type="hidden" name="idUserL2" value="<?= (int)$candidate['idUser'] ?>">
@@ -37,6 +38,7 @@ if (!isset($isDiscovery) || !$isDiscovery) cooker_redirect('index.php?page=disco
 <div class="match-photos"><img src="<?= cooker_escape(cooker_photo_url($currentUser['photo'])) ?>" alt="Ta photo"><img src="<?= cooker_escape(cooker_photo_url($matched['photo'])) ?>" alt="Photo de <?= cooker_escape($matched['prenomUser']) ?>"></div>
 <p id="match-description">Toi et <?= cooker_escape($matched['prenomUser']) ?> vous êtes likés. Aux fourneaux !</p>
 <form method="dialog"><button class="submit-button" type="submit">Continuer à découvrir</button></form>
+<a class="cancel-link" href="<?= cooker_escape(cooker_url('index.php?page=matches')) ?>">Voir mes matchs</a>
 </dialog>
 <script>
 const matchDialog = document.getElementById('match-dialog');

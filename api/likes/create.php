@@ -30,7 +30,7 @@ try {
     $query = cooker_database()->prepare('INSERT INTO LIKES (idUserL1, idUserL2, likeL1) SELECT ?, idUser, ? FROM USER WHERE idUser = ? AND idUser <> ? ON DUPLICATE KEY UPDATE idUserL1 = idUserL1');
     $query->execute([(int)$currentUser['idUser'], $decision === 'like' ? 1 : 0, $target, (int)$currentUser['idUser']]);
     $inserted = $query->rowCount() > 0;
-    $match = $decision === 'like' ? cooker_create_reciprocal_match($db, $actor, $target) : null;
+    $match = $inserted && $decision === 'like' ? cooker_create_reciprocal_match($db, $actor, $target) : null;
     $db->commit();
     $_SESSION['discovery_flash'] = ['message' => $inserted ? ($decision === 'like' ? 'Like enregistré.' : 'Profil passé.') : 'Ce profil a déjà été vu ou n’est plus disponible.'];
     if ($match) $_SESSION['discovery_flash']['match'] = $match;
